@@ -11,9 +11,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.exchangeratetrackerapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +37,7 @@ fun ExchangeRateAppBar(
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
+                        contentDescription = stringResource(R.string.back)
                     )
                 }
             }
@@ -50,9 +52,8 @@ fun ExchangeRateAppBar(
     )
 }
 
-
 @Composable
-fun AssetIcon(
+fun CurrencyIcon(
     symbol: String,
     modifier: Modifier = Modifier
 ) {
@@ -69,5 +70,25 @@ fun AssetIcon(
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp
         )
+    }
+}
+
+@Composable
+fun ErrorView(
+    message: String,
+    onRetry: () -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = stringResource(R.string.error, message))
+            Button(onClick = onRetry) {
+                Text(stringResource(R.string.retry))
+            }
+        }
     }
 }

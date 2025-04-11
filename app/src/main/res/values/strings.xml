@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">ExchangeRateTrackerApp</string>
+    <string name="add_asset">Add Asset</string>
+    <string name="exchange_rates">Exchange Rates</string>
+    <string name="no_currencies_added_yet">No currencies added yet</string>
+    <string name="last_updated">Last updated: %1$s</string>
+    <string name="remove">Remove</string>
+    <string name="done">Done</string>
+    <string name="search_assets">Search assets</string>
+    <string name="search">Search</string>
+    <string name="back">Back</string>
+    <string name="error">Error: %1$s</string>
+    <string name="retry">Retry</string>
+    <string name="popular_assets">POPULAR ASSETS</string>
+    <string name="cryptocurrencies">CRYPTOCURRENCIES</string>
+    <string name="other_currencies">OTHER CURRENCIES</string>
 </resources>

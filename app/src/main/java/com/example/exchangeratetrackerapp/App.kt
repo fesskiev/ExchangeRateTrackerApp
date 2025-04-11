@@ -1,6 +1,7 @@
 package com.example.exchangeratetrackerapp
 
 import android.app.Application
+import com.example.exchangeratetrackerapp.core.data.di.dataModule
 import com.example.exchangeratetrackerapp.features.home.di.homeModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -21,6 +22,7 @@ class App : Application() {
 
     private fun KoinApplication.koinModules() =
         modules(
+            dataModule,
             homeModule
         )
 }

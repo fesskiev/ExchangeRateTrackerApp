@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.exchangeratetrackerapp.features.home.presentation.assets.AddAssetsScreen
+import com.example.exchangeratetrackerapp.features.home.presentation.currencies.AddACurrenciesScreen
 import com.example.exchangeratetrackerapp.features.home.presentation.rates.ExchangeRatesScreen
 
 @Composable
@@ -13,11 +13,11 @@ fun HomeScreen() {
     NavHost(navController, startDestination = Screen.RATES.route) {
         composable(Screen.RATES.route) {
             ExchangeRatesScreen(
-                onAddAssetClick = { navController.navigate(Screen.ADD_ASSETS.route) }
+                onAddCurrenciesClick = { navController.navigate(Screen.ADD_CURRENCIES.route) }
             )
         }
-        composable(Screen.ADD_ASSETS.route) {
-            AddAssetsScreen(onBackClick = { navController.popBackStack() })
+        composable(Screen.ADD_CURRENCIES.route) {
+            AddACurrenciesScreen(onBackClick = { navController.popBackStack() })
         }
     }
 }
@@ -26,5 +26,5 @@ private enum class Screen(
     val route: String
 ) {
     RATES("/rates"),
-    ADD_ASSETS("/add_assets")
+    ADD_CURRENCIES("/add_currencies")
 }
