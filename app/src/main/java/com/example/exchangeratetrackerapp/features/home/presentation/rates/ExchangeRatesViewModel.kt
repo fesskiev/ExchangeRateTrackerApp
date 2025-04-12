@@ -2,12 +2,12 @@ package com.example.exchangeratetrackerapp.features.home.presentation.rates
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.exchangeratetrackerapp.core.common.format
 import com.example.exchangeratetrackerapp.core.data.local.CurrenciesCache
 import com.example.exchangeratetrackerapp.core.data.local.ExchangeRatesCache
-import com.example.exchangeratetrackerapp.core.data.local.StoredRatesData
+import com.example.exchangeratetrackerapp.core.data.local.mapResponseToStoredRatesData
 import com.example.exchangeratetrackerapp.core.data.remote.ExchangeRateApi
 import com.example.exchangeratetrackerapp.features.home.presentation.rates.model.ExchangeRateUi
+import com.example.exchangeratetrackerapp.features.home.presentation.rates.model.mapSelectedCurrenciesToUiModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +28,6 @@ class ExchangeRatesViewModel(
     var state = MutableStateFlow(ExchangeRatesState())
         private set
     private var job: Job? = null
-
 
     fun onEvent(event: ExchangeRatesEvent) = when (event) {
         is ExchangeRatesEvent.RemoveCurrency -> removeCurrency(event.code)
@@ -84,61 +83,26 @@ class ExchangeRatesViewModel(
     private suspend fun fetchLatestRates() {
         runCatching {
             setLoadingState()
-            api.getLatestExchangeRates()
-                .also { response ->
-                    exchangeRatesCache.saveRates(
-                        storedRatesData = StoredRatesData(
-                            updateTime = System.currentTimeMillis().format(),
-                            rates = response.rates
-                        )
-                    )
-                }
+            val response = api.getLatestExchangeRates()
+            exchangeRatesCache.saveRates(response.mapResponseToStoredRatesData())
             updateSelectedCurrencies()
         }.onFailure { error -> setErrorState(error) }
     }
 
     private suspend fun updateSelectedCurrencies() {
         val latestRates = exchangeRatesCache.getLatestRates()
-        mapSelectedCurrenciesToUiModel(
+        val rates = mapSelectedCurrenciesToUiModel(
             latestRates = latestRates,
             previousRatesData = exchangeRatesCache.getPreviousRates(),
             selectedCurrencies = currenciesCache.getSelectedCurrencies()
-        ).also { rates ->
-            setCurrenciesState(
-                rates = rates,
-                lastUpdate = latestRates?.updateTime
-            )
-        }
+        )
+        setCurrenciesState(
+            rates = rates,
+            lastUpdate = latestRates?.updateTime
+        )
     }
 
-    private fun mapSelectedCurrenciesToUiModel(
-        latestRates: StoredRatesData?,
-        previousRatesData: StoredRatesData?,
-        selectedCurrencies: List<String>
-    ) = selectedCurrencies.map { currencyCode ->
-            val currentRate = latestRates?.rates[currencyCode]
-            val percentChange = if (previousRatesData != null && currentRate != null) {
-                val previousRate = previousRatesData.rates[currencyCode] ?: currentRate
-                calculatePercentChange(currentRate, previousRate)
-            } else {
-                0.0
-            }
-            ExchangeRateUi(
-                code = currencyCode,
-                rate = currentRate ?: 0.0,
-                percentChange = percentChange
-            )
-        }
-
-    private fun calculatePercentChange(current: Double, previous: Double): Double {
-        if (previous == 0.0) return 0.0
-        return ((current - previous) / previous) * 100.0
-    }
-
-    private fun setCurrenciesState(
-        rates: List<ExchangeRateUi>,
-        lastUpdate: String?
-    ) {
+    private fun setCurrenciesState(rates: List<ExchangeRateUi>, lastUpdate: String?) {
         state.update {
             it.copy(
                 isLoading = false,

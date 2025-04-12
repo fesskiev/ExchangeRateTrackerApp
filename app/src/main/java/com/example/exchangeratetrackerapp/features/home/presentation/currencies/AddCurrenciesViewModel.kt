@@ -2,15 +2,11 @@ package com.example.exchangeratetrackerapp.features.home.presentation.currencies
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.exchangeratetrackerapp.core.common.cryptoCurrencyCodes
-import com.example.exchangeratetrackerapp.core.common.getCurrencySymbol
-import com.example.exchangeratetrackerapp.core.common.popularCurrencyCodes
 import com.example.exchangeratetrackerapp.core.data.local.CurrenciesCache
-import com.example.exchangeratetrackerapp.core.data.remote.CurrencyResponse
 import com.example.exchangeratetrackerapp.core.data.remote.ExchangeRateApi
-import com.example.exchangeratetrackerapp.features.home.presentation.currencies.model.CurrencySectionType
 import com.example.exchangeratetrackerapp.features.home.presentation.currencies.model.CurrencySectionUi
 import com.example.exchangeratetrackerapp.features.home.presentation.currencies.model.CurrencyUi
+import com.example.exchangeratetrackerapp.features.home.presentation.currencies.model.mapResponseToUiModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -44,7 +40,7 @@ class AddCurrenciesViewModel(
                 setLoadingState()
                 val response = api.getCurrencies()
                 val selectedCurrencies = currenciesCache.getSelectedCurrencies()
-                val sections = mapResponseToSections(response, selectedCurrencies)
+                val sections = response.mapResponseToUiModel(selectedCurrencies)
                 setSectionsState(sections)
             }.onFailure { setErrorState(it) }
         }
@@ -61,46 +57,6 @@ class AddCurrenciesViewModel(
                 events.emit(AddCurrenciesEvent.NavigateBack)
             }.onFailure { setErrorState(it) }
         }
-    }
-
-    private fun mapResponseToSections(
-        response: CurrencyResponse,
-        selectedCurrencies: List<String>
-    ): List<CurrencySectionUi> {
-        val popularCurrencies = mutableListOf<CurrencyUi>()
-        val cryptoCurrencies = mutableListOf<CurrencyUi>()
-        val otherCurrencies = mutableListOf<CurrencyUi>()
-
-        response.currencies.forEach { (code, name) ->
-            val isSelected = code in selectedCurrencies
-            val currencyUi = CurrencyUi(
-                code = code,
-                name = name,
-                symbol = code.getCurrencySymbol(),
-                isSelected = isSelected
-            )
-
-            when (code) {
-                in cryptoCurrencyCodes -> cryptoCurrencies.add(currencyUi)
-                in popularCurrencyCodes -> popularCurrencies.add(currencyUi)
-                else -> otherCurrencies.add(currencyUi)
-            }
-        }
-
-        return listOfNotNull(
-            if (popularCurrencies.isNotEmpty()) CurrencySectionUi(
-                CurrencySectionType.POPULAR_ASSETS,
-                popularCurrencies
-            ) else null,
-            if (cryptoCurrencies.isNotEmpty()) CurrencySectionUi(
-                CurrencySectionType.CRYPTOCURRENCIES,
-                cryptoCurrencies
-            ) else null,
-            if (otherCurrencies.isNotEmpty()) CurrencySectionUi(
-                CurrencySectionType.OTHER_CURRENCIES,
-                otherCurrencies
-            ) else null
-        )
     }
 
     private fun updateSearchQuery(query: String) {
