@@ -44,7 +44,7 @@ android {
     }
     buildFeatures {
         compose = true
-        buildConfig  = true
+        buildConfig = true
     }
 }
 
@@ -76,7 +76,12 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
 
-    implementation (libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore.preferences)
+
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
